@@ -1,0 +1,12 @@
+version: "3"
+services:
+  aws-cdk:
+    build:
+      context: docker/aws-cdk
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
