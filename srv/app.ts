@@ -1,6 +1,9 @@
 // AWS CDK
 import { App, Stack, StackProps } from 'aws-cdk-lib';
 
+// AWS CDK - Systems Manager
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+
 // Constructs
 import { Construct } from 'constructs';
 
@@ -19,6 +22,15 @@ class SlackReminderStack extends Stack {
    */
   constructor(scope?: Construct, id?: string, props?: StackProps) {
     super(scope, id, props);
+
+    // Settings
+    const settingParameter = new StringParameter(this, 'SettingParameter', {
+      stringValue: JSON.stringify({
+        taskCalendarUrl: '',
+        holidayCalendarUrl: '',
+        slackWebhookUrl: '',
+      }),
+    });
   }
 }
 
