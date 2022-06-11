@@ -1,6 +1,9 @@
 // AWS CDK
 import { App, Stack, StackProps } from 'aws-cdk-lib';
 
+// AWS CDK - DynamoDB
+import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
+
 // AWS CDK - Systems Manager
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
@@ -30,6 +33,32 @@ class SlackReminderStack extends Stack {
         holidayCalendarUrl: '',
         slackWebhookUrl: '',
       }),
+    });
+
+    // Events
+    const eventTable = new Table(this, 'EventTable', {
+      partitionKey: {
+        name: 'Id',
+        type: AttributeType.STRING,
+      },
+      readCapacity: 1,
+      writeCapacity: 1,
+      timeToLiveAttribute: 'ExpiredAt',
+    });
+
+    // Events - The GSI of date and time.
+    eventTable.addGlobalSecondaryIndex({
+      indexName: 'GSI-DateTime',
+      partitionKey: {
+        name: 'Date',
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'Time',
+        type: AttributeType.STRING,
+      },
+      readCapacity: 1,
+      writeCapacity: 1,
     });
   }
 }
