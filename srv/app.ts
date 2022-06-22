@@ -96,13 +96,35 @@ class SlackReminderStack extends Stack {
       ],
     });
 
+    // Reminder Function
+    const reminderFunction = new Function(this, 'ReminderFunction', {
+      runtime: Runtime.PYTHON_3_9,
+      code: Code.fromAsset(path.join(__dirname, 'reminder')),
+      handler: 'lambda_function.lambda_handler',
+      timeout: Duration.seconds(30),
+      environment: {
+        TZ: 'Asia/Tokyo',
+      },
+    });
+
+    // Reminder Rule
+    new Rule(this, 'ReminderRule', {
+      schedule: Schedule.cron({
+        minute: '*/5',
+      }),
+      targets: [
+        new LambdaFunction(reminderFunction),
+      ],
+    });
+
     // Environment Variables
     [['SETTING_PARAMETER_NAME', settingParameter.parameterName], ['EVENT_TABLE_NAME', eventTable.tableName]].forEach(([key, value]) => {
       scheduleFunction.addEnvironment(key, value);
+      reminderFunction.addEnvironment(key, value);
     });
 
     // Permissions
-    [scheduleFunction].forEach((grantee) => {
+    [scheduleFunction, reminderFunction].forEach((grantee) => {
       settingParameter.grantRead(grantee);
       settingParameter.grantWrite(grantee);
       eventTable.grantFullAccess(grantee);
